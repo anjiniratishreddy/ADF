@@ -1,5 +1,5 @@
 {
-	"name": "pipelineJoins",
+	"name": "ppl_Joins",
 	"properties": {
 		"description": "join, select, filter, conditional split",
 		"activities": [

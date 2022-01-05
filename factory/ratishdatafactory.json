@@ -1,0 +1,9 @@
+{
+	"name": "ratishdatafactory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "e1d25088-8929-40ae-b8d5-c60045c8e8eb",
+		"tenantId": "8fae27e4-ded0-4857-95bb-d2b999d882a0"
+	}
+}

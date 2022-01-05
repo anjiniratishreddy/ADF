@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "ppl_filmRating",
 	"properties": {
 		"activities": [
 			{
@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow1",
+						"referenceName": "filmRating",
 						"type": "DataFlowReference",
 						"datasetParameters": {
 							"adlsg2": {

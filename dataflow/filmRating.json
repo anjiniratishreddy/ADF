@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "filmRating",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -24,12 +24,9 @@
 			"transformations": [
 				{
 					"name": "DerivedColumnRating"
-				},
-				{
-					"name": "Sort1"
 				}
 			],
-			"script": "source(output(\n\t\tfilm_id as short,\n\t\ttitle as string,\n\t\tdescription as string,\n\t\trelease_year as short,\n\t\tlanguage_id as boolean,\n\t\trental_duration as short,\n\t\trental_rate as double,\n\t\tlength as short,\n\t\treplacement_cost as double,\n\t\trating as string,\n\t\tlast_update as string,\n\t\tspecial_features as string,\n\t\tfulltext as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> adlsg2\nadlsg2 derive(ratingElaboration = iif(rating == 'PG-13','Parental guidance under 13',\r\niif(rating == 'PG','Parental guidance',\r\niif(rating == 'R','Adult audience',\r\niif(rating == 'G','General audience',\r\niif(rating == 'NC-17','above age 17','')))))) ~> DerivedColumnRating\nDerivedColumnRating sort(asc(title, false)) ~> Sort1\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['transformedData'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1"
+			"script": "source(output(\n\t\tfilm_id as short,\n\t\ttitle as string,\n\t\tdescription as string,\n\t\trelease_year as short,\n\t\tlanguage_id as boolean,\n\t\trental_duration as short,\n\t\trental_rate as double,\n\t\tlength as short,\n\t\treplacement_cost as double,\n\t\trating as string,\n\t\tlast_update as string,\n\t\tspecial_features as string,\n\t\tfulltext as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> adlsg2\nadlsg2 derive(ratingElaboration = iif(rating == 'PG-13','Parental guidance under 13',\r\niif(rating == 'PG','Parental guidance',\r\niif(rating == 'R','Adult audience',\r\niif(rating == 'G','General audience',\r\niif(rating == 'NC-17','above age 17','')))))) ~> DerivedColumnRating\nDerivedColumnRating sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['transformedData'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1"
 		}
 	}
 }

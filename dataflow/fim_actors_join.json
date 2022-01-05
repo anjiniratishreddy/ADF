@@ -4,10 +4,32 @@
 		"description": "Join film table with all the actors casted in the each film",
 		"type": "MappingDataFlow",
 		"typeProperties": {
-			"sources": [],
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Source_film",
+						"type": "DatasetReference"
+					},
+					"name": "fim"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_actors",
+						"type": "DatasetReference"
+					},
+					"name": "actor"
+				},
+				{
+					"dataset": {
+						"referenceName": "Source_fim_actor",
+						"type": "DatasetReference"
+					},
+					"name": "fimActor"
+				}
+			],
 			"sinks": [],
 			"transformations": [],
-			"script": ""
+			"script": "source(output(\n\t\tfilm_id as string,\n\t\ttitle as string,\n\t\tdescription as string,\n\t\trelease_year as string,\n\t\tlanguage_id as string,\n\t\trental_duration as string,\n\t\trental_rate as string,\n\t\tlength as string,\n\t\treplacement_cost as string,\n\t\trating as string,\n\t\tlast_update as string,\n\t\tspecial_features as string,\n\t\tfulltext as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> fim\nsource(output(\n\t\tactor_id as string,\n\t\tfirst_name as string,\n\t\tlast_name as string,\n\t\tlast_update as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> actor\nsource(output(\n\t\tactor_id as string,\n\t\tfilm_id as string,\n\t\tlast_update as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> fimActor"
 		}
 	}
 }

@@ -1,0 +1,13 @@
+{
+	"name": "fim_actors_join",
+	"properties": {
+		"description": "Join film table with all the actors casted in the each film",
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [],
+			"script": ""
+		}
+	}
+}

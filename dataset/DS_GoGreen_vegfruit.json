@@ -1,0 +1,40 @@
+{
+	"name": "DS_GoGreen_vegfruit",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "vegitable_priceDetails_2.csv",
+				"fileSystem": "go-green-choice"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "item",
+				"type": "String"
+			},
+			{
+				"name": "name",
+				"type": "String"
+			},
+			{
+				"name": "WT/QTY",
+				"type": "String"
+			},
+			{
+				"name": "price",
+				"type": "String"
+			}
+		]
+	}
+}

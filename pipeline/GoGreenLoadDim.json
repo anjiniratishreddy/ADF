@@ -77,8 +77,10 @@
 								},
 								"sink": {
 									"name": "price",
-									"type": "Int32",
-									"physicalType": "int"
+									"type": "Decimal",
+									"physicalType": "decimal",
+									"scale": 2,
+									"precision": 5
 								}
 							}
 						],

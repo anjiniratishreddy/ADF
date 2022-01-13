@@ -26,6 +26,13 @@
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_sink_vegfrt_table",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
 				}
 			],
 			"transformations": [
@@ -36,10 +43,22 @@
 					"name": "RenamedColumns"
 				},
 				{
-					"name": "Lookup1"
+					"name": "LookUPforexistingproducts"
+				},
+				{
+					"name": "existingProducts"
+				},
+				{
+					"name": "SelectNewColumnData"
+				},
+				{
+					"name": "DerivedColumnIsActive"
+				},
+				{
+					"name": "AlterRow1"
 				}
 			],
-			"script": "source(output(\n\t\titem as string,\n\t\tname as string,\n\t\t{WT/QTY} as string,\n\t\tprice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GreenSource\nsource(output(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> vegfrtSqlTable\nGreenSource derive(isActive = 1) ~> AddingIsActive\nvegfrtSqlTable select(mapColumn(\n\t\tSKey,\n\t\titemSQL = item,\n\t\tnameSQL = name,\n\t\tWT_QTSQL = WT_QT,\n\t\tpriceSQL = price\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RenamedColumns\nGreenSource, RenamedColumns lookup(item == itemSQL,\n\tmultiple: true,\n\tbroadcast: 'auto')~> Lookup1\nAddingIsActive sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> sink1"
+			"script": "source(output(\n\t\titem as string,\n\t\tname as string,\n\t\t{WT/QTY} as string,\n\t\tprice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GreenSource\nsource(output(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> vegfrtSqlTable\nGreenSource derive(isActive = 1) ~> AddingIsActive\nvegfrtSqlTable select(mapColumn(\n\t\tSKey,\n\t\titemSQL = item,\n\t\tnameSQL = name,\n\t\tWT_QTSQL = WT_QT,\n\t\tpriceSQL = price\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RenamedColumns\nGreenSource, RenamedColumns lookup(item == itemSQL,\n\tmultiple: true,\n\tbroadcast: 'auto')~> LookUPforexistingproducts\nLookUPforexistingproducts filter(!isNull(itemSQL)) ~> existingProducts\nexistingProducts select(mapColumn(\n\t\tSKey,\n\t\titemSQL,\n\t\tnameSQL,\n\t\tWT_QTSQL,\n\t\tpriceSQL\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewColumnData\nSelectNewColumnData derive(IsActive = 0) ~> DerivedColumnIsActive\nDerivedColumnIsActive alterRow(updateIf(true())) ~> AlterRow1\nAddingIsActive sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> sink1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['SKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSKey,\n\t\titem = itemSQL\n\t)) ~> sink2"
 		}
 	}
 }

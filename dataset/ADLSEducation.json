@@ -1,0 +1,70 @@
+{
+	"name": "ADLSEducation",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "EducationDetails.json",
+				"fileSystem": "json-datasets"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"details": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"age": {
+								"type": "integer"
+							},
+							"results": {
+								"type": "object",
+								"properties": {
+									"school": {
+										"type": "integer"
+									},
+									"high_school": {
+										"type": "integer"
+									},
+									"graduation": {
+										"type": "integer"
+									}
+								}
+							},
+							"education": {
+								"type": "object",
+								"properties": {
+									"graduation": {
+										"type": "object",
+										"properties": {
+											"major": {
+												"type": "string"
+											},
+											"minor": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

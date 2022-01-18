@@ -1,0 +1,129 @@
+{
+	"name": "CopyEducationJson",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyJSON",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"path": "['id']"
+								},
+								"sink": {
+									"name": "Sid",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['name']"
+								},
+								"sink": {
+									"name": "name",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['age']"
+								},
+								"sink": {
+									"name": "age",
+									"type": "Int32"
+								}
+							},
+							{
+								"source": {
+									"path": "['results']['school']"
+								},
+								"sink": {
+									"name": "rslt_Scl",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['results']['high_school']"
+								},
+								"sink": {
+									"name": "rslt_Hgscl",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['results']['graduation']"
+								},
+								"sink": {
+									"name": "rslt_grad",
+									"type": "Decimal"
+								}
+							},
+							{
+								"source": {
+									"path": "['education']['graduation']['major']"
+								},
+								"sink": {
+									"name": "grad_maj",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"path": "['education']['graduation']['minor']"
+								},
+								"sink": {
+									"name": "grad_min",
+									"type": "String"
+								}
+							}
+						],
+						"collectionReference": "$['details']",
+						"mapComplexValuesToString": true
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ADLSEducation",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_education",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}

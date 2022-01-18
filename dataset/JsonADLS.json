@@ -1,0 +1,40 @@
+{
+	"name": "JsonADLS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "candidates.json",
+				"fileSystem": "json-datasets"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"rows": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string"
+							},
+							"Age": {
+								"type": "integer"
+							},
+							"DOB": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

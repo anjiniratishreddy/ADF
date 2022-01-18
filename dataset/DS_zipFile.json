@@ -1,0 +1,23 @@
+{
+	"name": "DS_zipFile",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "archive.zip",
+				"folderPath": "Raw",
+				"fileSystem": "education-score-card"
+			},
+			"compression": {
+				"type": "ZipDeflate",
+				"level": "Fastest"
+			}
+		}
+	}
+}

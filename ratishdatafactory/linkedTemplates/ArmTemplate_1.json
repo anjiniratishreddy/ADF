@@ -1,0 +1,760 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ratishdatafactory"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyCandidatesJSON')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyJSON",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Age']"
+										},
+										"sink": {
+											"name": "age",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "[['DOB']"
+										},
+										"sink": {
+											"name": "dob",
+											"type": "DateTime"
+										}
+									}
+								],
+								"collectionReference": "$['rows']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "JsonADLS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_candidates",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyEducationJson')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyJSON",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['id']"
+										},
+										"sink": {
+											"name": "Sid",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['age']"
+										},
+										"sink": {
+											"name": "age",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['school']"
+										},
+										"sink": {
+											"name": "rslt_Scl",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['high_school']"
+										},
+										"sink": {
+											"name": "rslt_Hgscl",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['graduation']"
+										},
+										"sink": {
+											"name": "rslt_grad",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['education']['graduation']['major']"
+										},
+										"sink": {
+											"name": "grad_maj",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['education']['graduation']['minor']"
+										},
+										"sink": {
+											"name": "grad_min",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['details']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLSEducation",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_education",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreenLoadDim')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "item",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "item",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "WT/QTY",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "WT_QT",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "price",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "price",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 5
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_src_GoGreenDim",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/UnZip')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings",
+										"preserveZipFileNameAsFolder": false
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_zipFile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_UnZip",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreen')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_GoGreen_vegfruit",
+								"type": "DatasetReference"
+							},
+							"name": "GreenSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "vegfrtSqlTable"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AddingIsActive"
+						},
+						{
+							"name": "RenamedColumns"
+						},
+						{
+							"name": "LookUPforexistingproducts"
+						},
+						{
+							"name": "existingProducts"
+						},
+						{
+							"name": "SelectNewColumnData"
+						},
+						{
+							"name": "DerivedColumnIsActive"
+						},
+						{
+							"name": "AlterRow1"
+						}
+					],
+					"script": "source(output(\n\t\titem as string,\n\t\tname as string,\n\t\t{WT/QTY} as string,\n\t\tprice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GreenSource\nsource(output(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> vegfrtSqlTable\nGreenSource derive(isActive = 1) ~> AddingIsActive\nvegfrtSqlTable select(mapColumn(\n\t\tSKey,\n\t\titemSQL = item,\n\t\tnameSQL = name,\n\t\tWT_QTSQL = WT_QT,\n\t\tpriceSQL = price\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RenamedColumns\nGreenSource, RenamedColumns lookup(item == itemSQL,\n\tmultiple: true,\n\tbroadcast: 'auto')~> LookUPforexistingproducts\nLookUPforexistingproducts filter(!isNull(itemSQL)) ~> existingProducts\nexistingProducts select(mapColumn(\n\t\tSKey,\n\t\titemSQL,\n\t\tnameSQL,\n\t\tWT_QTSQL,\n\t\tpriceSQL\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewColumnData\nSelectNewColumnData derive(IsActive = 0) ~> DerivedColumnIsActive\nDerivedColumnIsActive alterRow(updateIf(true())) ~> AlterRow1\nAddingIsActive sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\titem,\n\t\tname,\n\t\tWT_QT = {WT/QTY},\n\t\tprice,\n\t\tisActive\n\t)) ~> sink1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['SKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSKey,\n\t\titem = itemSQL,\n\t\tname = nameSQL,\n\t\tWT_QT = WT_QTSQL,\n\t\tprice = priceSQL,\n\t\tisActive = IsActive\n\t)) ~> sink2"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ecommerce')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "join, filter, select, conditional split",
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "source_ecommerce_cust",
+								"type": "DatasetReference"
+							},
+							"name": "customerOrders"
+						},
+						{
+							"dataset": {
+								"referenceName": "source_ecommerce_prod",
+								"type": "DatasetReference"
+							},
+							"name": "productDetails"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "sink_cust_orders",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "sink_cust_orders",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						},
+						{
+							"dataset": {
+								"referenceName": "sink_cust_orders",
+								"type": "DatasetReference"
+							},
+							"name": "sink3"
+						},
+						{
+							"dataset": {
+								"referenceName": "sink_cust_orders",
+								"type": "DatasetReference"
+							},
+							"name": "sink4"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Join1"
+						},
+						{
+							"name": "FilteredValues"
+						},
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "ConditionalSplit1"
+						}
+					],
+					"script": "source(output(\n\t\tcid as string,\n\t\tcname as string,\n\t\tclocation as string,\n\t\tcprodid as string,\n\t\t{orderdate;} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> customerOrders\nsource(output(\n\t\tpprodid as string,\n\t\tprodname as string,\n\t\t{proddesc;} as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> productDetails\ncustomerOrders, productDetails join(cprodid == pprodid,\n\tjoinType:'left',\n\tpartitionBy('hash', 1),\n\tbroadcast: 'auto')~> Join1\nSelect1 filter(isNull(prodname),\n\tpartitionBy('hash', 1)) ~> FilteredValues\nJoin1 select(mapColumn(\n\t\tcid,\n\t\tcname,\n\t\tclocation,\n\t\tcprodid,\n\t\t{orderdate;},\n\t\tprodname,\n\t\t{proddesc;}\n\t),\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nFilteredValues split(equals(clocation, 'bangalore'),\n\tequals(clocation, 'hydrabad'),\n\tequals(clocation, 'pune'),\n\tdisjoint: false,\n\tpartitionBy('hash', 1)) ~> ConditionalSplit1@(bangalore, hydrabad, pune, others)\nConditionalSplit1@hydrabad sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['hydrabad'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1\nConditionalSplit1@pune sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['pune'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink2\nConditionalSplit1@others sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['other cities'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink3\nConditionalSplit1@bangalore sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['bangalore'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink4"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/filmRating')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Source_adlsg2DVD",
+								"type": "DatasetReference"
+							},
+							"name": "adlsg2"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "Sink_adlsg2DVD",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "DerivedColumnRating"
+						}
+					],
+					"script": "source(output(\n\t\tfilm_id as short,\n\t\ttitle as string,\n\t\tdescription as string,\n\t\trelease_year as short,\n\t\tlanguage_id as boolean,\n\t\trental_duration as short,\n\t\trental_rate as double,\n\t\tlength as short,\n\t\treplacement_cost as double,\n\t\trating as string,\n\t\tlast_update as string,\n\t\tspecial_features as string,\n\t\tfulltext as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> adlsg2\nadlsg2 derive(ratingElaboration = iif(rating == 'PG-13','Parental guidance under 13',\r\niif(rating == 'PG','Parental guidance',\r\niif(rating == 'R','Adult audience',\r\niif(rating == 'G','General audience',\r\niif(rating == 'NC-17','above age 17','')))))) ~> DerivedColumnRating\nDerivedColumnRating sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['transformedData'],\n\tumask: 0022,\n\tpreCommands: [],\n\tpostCommands: [],\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tpartitionBy('hash', 1)) ~> sink1"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreenLoadDimWithNewProd')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SCD2",
+				"activities": [
+					{
+						"name": "LoadNewProds",
+						"description": "SCD2",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "GoGreen",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"GreenSource": {},
+									"vegfrtSqlTable": {},
+									"sink1": {},
+									"sink2": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/GoGreen')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ppl_Joins')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "join, select, filter, conditional split",
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "ecommerce",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"customerOrders": {},
+									"productDetails": {},
+									"sink1": {},
+									"sink2": {},
+									"sink3": {},
+									"sink4": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-01-04T14:17:48Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/ecommerce')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ppl_filmRating')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow1",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "filmRating",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"adlsg2": {
+										"fileName": "film.csv"
+									},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-12-31T09:42:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/filmRating')]"
+			]
+		}
+	]
+}

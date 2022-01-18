@@ -7,6 +7,14 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ratishdatafactory"
 		},
+		"LS_AzureSynapseAnalytics_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_AzureSynapseAnalytics'"
+		},
+		"LS_SQLDB_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_SQLDB'"
+		},
 		"LS_adlsg2_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_adlsg2'"
@@ -20,6 +28,484 @@
 		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
 	},
 	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyCandidatesJSON')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyJSON",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['Age']"
+										},
+										"sink": {
+											"name": "age",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "[['DOB']"
+										},
+										"sink": {
+											"name": "dob",
+											"type": "DateTime"
+										}
+									}
+								],
+								"collectionReference": "$['rows']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "JsonADLS",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_candidates",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/JsonADLS')]",
+				"[concat(variables('factoryId'), '/datasets/DS_candidates')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CopyEducationJson')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyJSON",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "JsonSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "JsonReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"path": "[['id']"
+										},
+										"sink": {
+											"name": "Sid",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['name']"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['age']"
+										},
+										"sink": {
+											"name": "age",
+											"type": "Int32"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['school']"
+										},
+										"sink": {
+											"name": "rslt_Scl",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['high_school']"
+										},
+										"sink": {
+											"name": "rslt_Hgscl",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['results']['graduation']"
+										},
+										"sink": {
+											"name": "rslt_grad",
+											"type": "Decimal"
+										}
+									},
+									{
+										"source": {
+											"path": "[['education']['graduation']['major']"
+										},
+										"sink": {
+											"name": "grad_maj",
+											"type": "String"
+										}
+									},
+									{
+										"source": {
+											"path": "[['education']['graduation']['minor']"
+										},
+										"sink": {
+											"name": "grad_min",
+											"type": "String"
+										}
+									}
+								],
+								"collectionReference": "$['details']",
+								"mapComplexValuesToString": true
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ADLSEducation",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_education",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ADLSEducation')]",
+				"[concat(variables('factoryId'), '/datasets/DS_education')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreenLoadDim')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "item",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "item",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "name",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "name",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "WT/QTY",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "WT_QT",
+											"type": "String",
+											"physicalType": "nvarchar"
+										}
+									},
+									{
+										"source": {
+											"name": "price",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "price",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 5
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_src_GoGreenDim",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_src_GoGreenDim')]",
+				"[concat(variables('factoryId'), '/datasets/DS_sink_vegfrt_table')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreenLoadDimWithNewProd')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "SCD2",
+				"activities": [
+					{
+						"name": "LoadNewProds",
+						"description": "SCD2",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "1.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "GoGreen",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"GreenSource": {},
+									"vegfrtSqlTable": {},
+									"sink1": {},
+									"sink2": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/GoGreen')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/UnZip')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings",
+										"preserveZipFileNameAsFolder": false
+									}
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "DS_zipFile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "DS_UnZip",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_zipFile')]",
+				"[concat(variables('factoryId'), '/datasets/DS_UnZip')]"
+			]
+		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ppl_Joins')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
@@ -124,6 +610,425 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ADLSEducation')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "EducationDetails.json",
+						"fileSystem": "json-datasets"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"details": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									},
+									"age": {
+										"type": "integer"
+									},
+									"results": {
+										"type": "object",
+										"properties": {
+											"school": {
+												"type": "integer"
+											},
+											"high_school": {
+												"type": "integer"
+											},
+											"graduation": {
+												"type": "integer"
+											}
+										}
+									},
+									"education": {
+										"type": "object",
+										"properties": {
+											"graduation": {
+												"type": "object",
+												"properties": {
+													"major": {
+														"type": "string"
+													},
+													"minor": {
+														"type": "string"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_GoGreen_vegfruit')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "vegitable_priceDetails_2.csv",
+						"fileSystem": "go-green-choice"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "item",
+						"type": "String"
+					},
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "WT/QTY",
+						"type": "String"
+					},
+					{
+						"name": "price",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_UnZip')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": "Data",
+						"fileSystem": "education-score-card"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_candidates')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "age",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dob",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "candidates"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_education')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Sid",
+						"type": "nvarchar"
+					},
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "age",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "rslt_Scl",
+						"type": "decimal",
+						"precision": 20,
+						"scale": 2
+					},
+					{
+						"name": "rslt_Hgscl",
+						"type": "decimal",
+						"precision": 20,
+						"scale": 2
+					},
+					{
+						"name": "rslt_grad",
+						"type": "decimal",
+						"precision": 20,
+						"scale": 2
+					},
+					{
+						"name": "grad_maj",
+						"type": "nvarchar"
+					},
+					{
+						"name": "grad_min",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "education"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_sink_vegfrt_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "SKey",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item",
+						"type": "nvarchar"
+					},
+					{
+						"name": "name",
+						"type": "nvarchar"
+					},
+					{
+						"name": "WT_QT",
+						"type": "nvarchar"
+					},
+					{
+						"name": "price",
+						"type": "decimal",
+						"precision": 5,
+						"scale": 2
+					},
+					{
+						"name": "isActive",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "VEGFRT"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQLDB')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_src_GoGreenDim')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "vegitableFruits_priceDetails.csv",
+						"fileSystem": "go-green-choice"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "item",
+						"type": "String"
+					},
+					{
+						"name": "name",
+						"type": "String"
+					},
+					{
+						"name": "WT/QTY",
+						"type": "String"
+					},
+					{
+						"name": "price",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DS_zipFile')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "archive.zip",
+						"folderPath": "Raw",
+						"fileSystem": "education-score-card"
+					},
+					"compression": {
+						"type": "ZipDeflate",
+						"level": "Fastest"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/JsonADLS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "candidates.json",
+						"fileSystem": "json-datasets"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"rows": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string"
+									},
+									"Age": {
+										"type": "integer"
+									},
+									"DOB": {
+										"type": "string"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/Sink_adlsg2DVD')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -146,6 +1051,52 @@
 					"quoteChar": "\""
 				},
 				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_actors')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "actor.csv",
+						"folderPath": "movies",
+						"fileSystem": "dvdrentals"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "actor_id",
+						"type": "String"
+					},
+					{
+						"name": "first_name",
+						"type": "String"
+					},
+					{
+						"name": "last_name",
+						"type": "String"
+					},
+					{
+						"name": "last_update",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
@@ -234,6 +1185,130 @@
 					},
 					{
 						"name": "fulltext",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_film')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "film.csv",
+						"folderPath": "movies",
+						"fileSystem": "dvdrentals"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "film_id",
+						"type": "String"
+					},
+					{
+						"name": "title",
+						"type": "String"
+					},
+					{
+						"name": "description",
+						"type": "String"
+					},
+					{
+						"name": "release_year",
+						"type": "String"
+					},
+					{
+						"name": "language_id",
+						"type": "String"
+					},
+					{
+						"name": "rental_duration",
+						"type": "String"
+					},
+					{
+						"name": "rental_rate",
+						"type": "String"
+					},
+					{
+						"name": "length",
+						"type": "String"
+					},
+					{
+						"name": "replacement_cost",
+						"type": "String"
+					},
+					{
+						"name": "rating",
+						"type": "String"
+					},
+					{
+						"name": "last_update",
+						"type": "String"
+					},
+					{
+						"name": "special_features",
+						"type": "String"
+					},
+					{
+						"name": "fulltext",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_adlsg2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Source_fim_actor')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_adlsg2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "film_actor.csv",
+						"folderPath": "movies",
+						"fileSystem": "dvdrentals"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "actor_id",
+						"type": "String"
+					},
+					{
+						"name": "film_id",
+						"type": "String"
+					},
+					{
+						"name": "last_update",
 						"type": "String"
 					}
 				]
@@ -363,6 +1438,32 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/LS_AzureSynapseAnalytics')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_AzureSynapseAnalytics_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQLDB')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('LS_SQLDB_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/LS_adlsg2')]",
 			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
@@ -378,6 +1479,76 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/GoGreen')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "DS_GoGreen_vegfruit",
+								"type": "DatasetReference"
+							},
+							"name": "GreenSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "vegfrtSqlTable"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "DS_sink_vegfrt_table",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						}
+					],
+					"transformations": [
+						{
+							"name": "AddingIsActive"
+						},
+						{
+							"name": "RenamedColumns"
+						},
+						{
+							"name": "LookUPforexistingproducts"
+						},
+						{
+							"name": "existingProducts"
+						},
+						{
+							"name": "SelectNewColumnData"
+						},
+						{
+							"name": "DerivedColumnIsActive"
+						},
+						{
+							"name": "AlterRow1"
+						}
+					],
+					"script": "source(output(\n\t\titem as string,\n\t\tname as string,\n\t\t{WT/QTY} as string,\n\t\tprice as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> GreenSource\nsource(output(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> vegfrtSqlTable\nGreenSource derive(isActive = 1) ~> AddingIsActive\nvegfrtSqlTable select(mapColumn(\n\t\tSKey,\n\t\titemSQL = item,\n\t\tnameSQL = name,\n\t\tWT_QTSQL = WT_QT,\n\t\tpriceSQL = price\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> RenamedColumns\nGreenSource, RenamedColumns lookup(item == itemSQL,\n\tmultiple: true,\n\tbroadcast: 'auto')~> LookUPforexistingproducts\nLookUPforexistingproducts filter(!isNull(itemSQL)) ~> existingProducts\nexistingProducts select(mapColumn(\n\t\tSKey,\n\t\titemSQL,\n\t\tnameSQL,\n\t\tWT_QTSQL,\n\t\tpriceSQL\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> SelectNewColumnData\nSelectNewColumnData derive(IsActive = 0) ~> DerivedColumnIsActive\nDerivedColumnIsActive alterRow(updateIf(true())) ~> AlterRow1\nAddingIsActive sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 1,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\titem,\n\t\tname,\n\t\tWT_QT = {WT/QTY},\n\t\tprice,\n\t\tisActive\n\t)) ~> sink1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSKey as integer,\n\t\titem as string,\n\t\tname as string,\n\t\tWT_QT as string,\n\t\tprice as decimal(5,2),\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:false,\n\tupdateable:true,\n\tupsertable:false,\n\tkeys:['SKey'],\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\tsaveOrder: 2,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSKey,\n\t\titem = itemSQL,\n\t\tname = nameSQL,\n\t\tWT_QT = WT_QTSQL,\n\t\tprice = priceSQL,\n\t\tisActive = IsActive\n\t)) ~> sink2"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/DS_GoGreen_vegfruit')]",
+				"[concat(variables('factoryId'), '/datasets/DS_sink_vegfrt_table')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/ecommerce')]",

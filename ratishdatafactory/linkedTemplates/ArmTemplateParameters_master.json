@@ -5,6 +5,12 @@
 		"factoryName": {
 			"value": "ratishdatafactory"
 		},
+		"LS_AzureSynapseAnalytics_connectionString": {
+			"value": ""
+		},
+		"LS_SQLDB_connectionString": {
+			"value": ""
+		},
 		"LS_adlsg2_accountKey": {
 			"value": ""
 		},

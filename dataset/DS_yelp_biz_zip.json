@@ -1,0 +1,23 @@
+{
+	"name": "DS_yelp_biz_zip",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "yelp_academic_dataset_business.json.zip",
+				"folderPath": "business/zip",
+				"fileSystem": "yelp"
+			},
+			"compression": {
+				"type": "ZipDeflate",
+				"level": "Fastest"
+			}
+		}
+	}
+}

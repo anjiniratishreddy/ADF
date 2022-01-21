@@ -19,6 +19,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_adlsg2'"
 		},
+		"LS_AzureBlobStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_AzureBlobStorage'"
+		},
 		"LS_adlsg2_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://myratishadlsg2.dfs.core.windows.net"
@@ -58,6 +62,9 @@
 					},
 					"LS_adlsg2_accountKey": {
 						"value": "[parameters('LS_adlsg2_accountKey')]"
+					},
+					"LS_AzureBlobStorage_connectionString": {
+						"value": "[parameters('LS_AzureBlobStorage_connectionString')]"
 					},
 					"LS_adlsg2_properties_typeProperties_url": {
 						"value": "[parameters('LS_adlsg2_properties_typeProperties_url')]"

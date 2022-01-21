@@ -14,6 +14,9 @@
 		"LS_adlsg2_accountKey": {
 			"value": ""
 		},
+		"LS_AzureBlobStorage_connectionString": {
+			"value": ""
+		},
 		"LS_adlsg2_properties_typeProperties_url": {
 			"value": "https://myratishadlsg2.dfs.core.windows.net"
 		}

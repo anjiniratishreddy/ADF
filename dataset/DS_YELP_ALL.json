@@ -1,0 +1,21 @@
+{
+	"name": "DS_YELP_ALL",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AzureBlobStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "archive.zip",
+				"container": "myratish"
+			},
+			"compression": {
+				"type": "ZipDeflate"
+			}
+		}
+	}
+}

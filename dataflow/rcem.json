@@ -1,0 +1,64 @@
+{
+	"name": "rcem",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_src_cem",
+						"type": "DatasetReference"
+					},
+					"name": "CSVsource"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_AzureSqlCEMtable",
+						"type": "DatasetReference"
+					},
+					"name": "SQLcem"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AzureSqlCEMtable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_AzureSqlCEMtable",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "isActivederived"
+				},
+				{
+					"name": "Rename"
+				},
+				{
+					"name": "LookupinSQL"
+				},
+				{
+					"name": "Filter1"
+				},
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "DerivedColumn1"
+				},
+				{
+					"name": "AlterRow1"
+				}
+			],
+			"script": "source(output(\n\t\tcpais as string,\n\t\tbrand as string,\n\t\tvin as string,\n\t\tsecviceContract as string,\n\t\tmttht as string,\n\t\tcumprel as string,\n\t\tmtcom as string,\n\t\trem as string,\n\t\tstatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> CSVsource\nsource(output(\n\t\tSkey as integer,\n\t\tbrand as string,\n\t\tchasis_num as string,\n\t\ts_contract as string,\n\t\tcumprel as string,\n\t\tmtcom as string,\n\t\trem as string,\n\t\tstatus as string,\n\t\tisActive as integer\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> SQLcem\nCSVsource derive(isActive = 1) ~> isActivederived\nSQLcem select(mapColumn(\n\t\tSQLSkey = Skey,\n\t\tSQLbrand = brand,\n\t\tSQLchasis_num = chasis_num,\n\t\tSQLs_contract = s_contract,\n\t\tSQLcumprel = cumprel,\n\t\tSQLmtcom = mtcom,\n\t\tSQLrem = rem,\n\t\tSQLstatus = status,\n\t\tSQLisActive = isActive\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Rename\nCSVsource, Rename lookup(vin == SQLchasis_num,\n\tmultiple: true,\n\tbroadcast: 'auto')~> LookupinSQL\nLookupinSQL filter(!isNull(status)) ~> Filter1\nFilter1 select(mapColumn(\n\t\tSQLSkey,\n\t\tSQLbrand,\n\t\tSQLchasis_num,\n\t\tSQLs_contract,\n\t\tSQLcumprel,\n\t\tSQLmtcom,\n\t\tSQLrem,\n\t\tSQLstatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\nSelect1 derive(isActive = 0) ~> DerivedColumn1\nDerivedColumn1 alterRow(updateIf(true())) ~> AlterRow1\nisActivederived sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSkey as integer,\n\t\tbrand as string,\n\t\tchasis_num as string,\n\t\ts_contract as string,\n\t\tcumprel as string,\n\t\tmtcom as string,\n\t\trem as string,\n\t\tstatus as string,\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> sink1\nAlterRow1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tinput(\n\t\tSkey as integer,\n\t\tbrand as string,\n\t\tchasis_num as string,\n\t\ts_contract as string,\n\t\tcumprel as string,\n\t\tmtcom as string,\n\t\trem as string,\n\t\tstatus as string,\n\t\tisActive as integer\n\t),\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError',\n\tmapColumn(\n\t\tSkey = SQLSkey,\n\t\tbrand = SQLbrand,\n\t\tchasis_num = SQLchasis_num,\n\t\ts_contract = SQLs_contract,\n\t\tcumprel = SQLcumprel,\n\t\tmtcom = SQLmtcom,\n\t\trem = SQLrem,\n\t\tstatus = SQLstatus,\n\t\tisActive\n\t)) ~> sink2"
+		}
+	}
+}

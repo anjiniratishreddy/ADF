@@ -1,0 +1,60 @@
+{
+	"name": "DS_src_cem",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adlsg2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "RCEM_UPDATE.CSV",
+				"fileSystem": "manufacturing"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "cpais",
+				"type": "String"
+			},
+			{
+				"name": "brand",
+				"type": "String"
+			},
+			{
+				"name": "vin",
+				"type": "String"
+			},
+			{
+				"name": "secviceContract",
+				"type": "String"
+			},
+			{
+				"name": "mttht",
+				"type": "String"
+			},
+			{
+				"name": "cumprel",
+				"type": "String"
+			},
+			{
+				"name": "mtcom",
+				"type": "String"
+			},
+			{
+				"name": "rem",
+				"type": "String"
+			},
+			{
+				"name": "status",
+				"type": "String"
+			}
+		]
+	}
+}

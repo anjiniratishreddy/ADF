@@ -1,0 +1,55 @@
+{
+	"name": "DS_AzureSqlCEMtable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_SQLDB",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "Skey",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "brand",
+				"type": "nvarchar"
+			},
+			{
+				"name": "chasis_num",
+				"type": "nvarchar"
+			},
+			{
+				"name": "s_contract",
+				"type": "nvarchar"
+			},
+			{
+				"name": "cumprel",
+				"type": "nvarchar"
+			},
+			{
+				"name": "mtcom",
+				"type": "nvarchar"
+			},
+			{
+				"name": "rem",
+				"type": "nvarchar"
+			},
+			{
+				"name": "status",
+				"type": "nvarchar"
+			},
+			{
+				"name": "isActive",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "rcem"
+		}
+	}
+}

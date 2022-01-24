@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "ratishdatafactory"
 		},
+		"LS_AzureBlobStorage_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'LS_AzureBlobStorage'"
+		},
 		"LS_AzureSynapseAnalytics_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'LS_AzureSynapseAnalytics'"
@@ -18,10 +22,6 @@
 		"LS_adlsg2_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'LS_adlsg2'"
-		},
-		"LS_AzureBlobStorage_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'LS_AzureBlobStorage'"
 		},
 		"LS_adlsg2_properties_typeProperties_url": {
 			"type": "string",
@@ -54,6 +54,9 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"LS_AzureBlobStorage_connectionString": {
+						"value": "[parameters('LS_AzureBlobStorage_connectionString')]"
+					},
 					"LS_AzureSynapseAnalytics_connectionString": {
 						"value": "[parameters('LS_AzureSynapseAnalytics_connectionString')]"
 					},
@@ -62,9 +65,6 @@
 					},
 					"LS_adlsg2_accountKey": {
 						"value": "[parameters('LS_adlsg2_accountKey')]"
-					},
-					"LS_AzureBlobStorage_connectionString": {
-						"value": "[parameters('LS_AzureBlobStorage_connectionString')]"
 					},
 					"LS_adlsg2_properties_typeProperties_url": {
 						"value": "[parameters('LS_adlsg2_properties_typeProperties_url')]"
@@ -91,6 +91,26 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'ratishdatafactory_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "ratishdatafactory_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ratishdatafactory_ArmTemplate_1')]"
 			]
 		}
 	]

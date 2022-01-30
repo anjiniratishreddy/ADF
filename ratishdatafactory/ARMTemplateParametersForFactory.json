@@ -11,11 +11,26 @@
 		"LS_AzureSynapseAnalytics_connectionString": {
 			"value": ""
 		},
+		"LS_PostgreSql_connectionString": {
+			"value": ""
+		},
+		"LS_PostgreSql2_connectionString": {
+			"value": ""
+		},
 		"LS_SQLDB_connectionString": {
+			"value": ""
+		},
+		"LS_adlsG2_jan_accountKey": {
 			"value": ""
 		},
 		"LS_adlsg2_accountKey": {
 			"value": ""
+		},
+		"LS_AzureKeyVault_properties_typeProperties_baseUrl": {
+			"value": "https://myratishkeyvault.vault.azure.net/"
+		},
+		"LS_adlsG2_jan_properties_typeProperties_url": {
+			"value": "https://myratishadlsg2.dfs.core.windows.net"
 		},
 		"LS_adlsg2_properties_typeProperties_url": {
 			"value": "https://myratishadlsg2.dfs.core.windows.net"

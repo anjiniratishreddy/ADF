@@ -1,0 +1,73 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Notebook1",
+				"type": "DatabricksNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/Users/anjiniratish@outlook.com/notebook_1"
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_AzureDatabricks",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Set variable1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "notebook_out",
+					"value": {
+						"value": "@activity('Notebook1').output.runOutput",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set variable1_copy1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Notebook1",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "notebook_out",
+					"value": {
+						"value": "@activity('Notebook1').output.runError",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"notebook_out": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
